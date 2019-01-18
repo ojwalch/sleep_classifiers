@@ -5,6 +5,7 @@ maxDaysToAverage = 5;
 binSizeForStepsInMinutes = 60;
 numHoursToSaveAsOutput = 9;
 outputStepSizeInSeconds = 30;
+hoursOverhangToCrop = 10;
 
 for subject_num = 1:42
     
@@ -36,8 +37,8 @@ for subject_num = 1:42
 
             for t = (croppedStartPoint + dt/2):dt:(max(stepsData(:,1)) - dt/2)
                 currentBin = mod(binIndex - 1, numberOfBinsPerDay) + 1; % Index for current hour
-                overhangIndices = intersect(find(stepsData(:,1) >= t - dt/2),find(stepsData(:,1) < t + dt/2)); 
-                averageSteps(currentBin) = averageSteps(currentBin) + sum(stepsData(overhangIndices,2)); 
+                indicesInBin = intersect(find(stepsData(:,1) >= t - dt/2),find(stepsData(:,1) < t + dt/2)); 
+                averageSteps(currentBin) = averageSteps(currentBin) + sum(stepsData(indicesInBin,2)); 
                 cumulativeBinCount(currentBin) = cumulativeBinCount(currentBin) + 1;
                 binIndex = binIndex + 1;
             end
@@ -51,29 +52,29 @@ for subject_num = 1:42
             
             % Add buffer at end to make sure we have enough coverage
             numBufferDays = 3;
-            endTimestamp = max(stepsData(:,1)) + numBufferDays*24*60*60;
-            timestampsForSimulation = fliplr(endTimestamp:-dt:(endTimestamp - (numDaysToSimulate)*24*60*60 + dt));
+            endTimestamp = max(stepsData(:,1)) + numBufferDays*secondsPerDay;
+            timestampsForSimulation = fliplr(endTimestamp:-dt:(endTimestamp - (numDaysToSimulate)*secondsPerDay + dt));
             
             % Include pre-PSG dark collection from DLMO
             numHoursInDark = 6;
-            darkPeriodPrePSGIndices = timestampsForSimulation > min(scoreData(:,1)) - numHoursInDark*60*60;
+            darkPeriodPrePSGIndices = timestampsForSimulation > min(scoreData(:,1)) - numHoursInDark*secondsPerHour;
             lightForSimulation(darkPeriodPrePSGIndices) = 0;
             
             % Crop anything after 10 hours from PSG start
-            overhangIndices = find(timestampsForSimulation > 10*60*60 + min(scoreData(:,1)));
+            overhangIndices = find(timestampsForSimulation > hoursOverhangToCrop*secondsPerHour + min(scoreData(:,1)));
             timestampsForSimulation(overhangIndices) = [];
             lightForSimulation(overhangIndices) = [];
 
             % Scale for simulation
             shiftedTimestampsForSimulation = timestampsForSimulation - min(timestampsForSimulation);
-            timestampsForSimulationScaledHours = shiftedTimestampsForSimulation/(3600);
+            timestampsForSimulationScaledHours = shiftedTimestampsForSimulation/secondsPerHour;
             durationHours = max(timestampsForSimulationScaledHours);
             
             lightStruct = struct('dur',durationHours,'time',timestampsForSimulationScaledHours,'light',lightForSimulation);
             [tc,y] = circadianModel(lightStruct,24.2);
             
             % Convert simulation time to seconds
-            timestampsCircadianOutput = tc*3600 + min(timestampsForSimulation);
+            timestampsCircadianOutput = tc*secondsPerHour + min(timestampsForSimulation);
             outputTimestampsSeconds = min(scoreData(:,1)):outputStepSizeInSeconds:(min(scoreData(:,1)) + numHoursToSaveAsOutput*secondsPerHour);
             
             outputCircadianX = interp1(timestampsCircadianOutput,y(:,1),outputTimestampsSeconds);

@@ -52,7 +52,7 @@ for i = 1:length(actigraphyFileNames)
         
         if(~isempty(psgStartLine))
 
-            lightData = steps2light(person.steps(psgStartLine:(psgStartLine + secondsPerDay*numDays/dtPSG)));
+            lightData = counts2light(person.steps(psgStartLine:(psgStartLine + secondsPerDay*numDays/dtPSG)));
             timestampData = 0:dtPSG:(length(lightData)*dtPSG - 1);
             
             dt = secondsPerMinute*binSizeForStepsInMinutes; 

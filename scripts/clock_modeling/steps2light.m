@@ -1,5 +1,5 @@
 function light = steps2light(steps)
 
-    light = 850*tanh(0.015*steps);
+    light = steps; % First-order approximation lacking light sensor validation
 
 end

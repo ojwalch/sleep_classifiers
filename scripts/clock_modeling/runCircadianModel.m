@@ -65,6 +65,11 @@ for subject_num = 1:42
             timestampsForSimulation(overhangIndices) = [];
             lightForSimulation(overhangIndices) = [];
 
+             % Plot local window before night of sleep
+            plotIndices = find(timestampsForSimulation > min(scoreData(:,1) - secondsPerDay*5));
+            figure(2); hold on; 
+            plot(timestampsForSimulation(plotIndices) - timestampsForSimulation(plotIndices(1)),lightForSimulation(plotIndices)); 
+            
             % Scale for simulation
             shiftedTimestampsForSimulation = timestampsForSimulation - min(timestampsForSimulation);
             timestampsForSimulationScaledHours = shiftedTimestampsForSimulation/secondsPerHour;

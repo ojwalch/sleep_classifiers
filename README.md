@@ -10,9 +10,11 @@ This code uses Python 2.7.
 
 Will be put on PhysioNet when the paper is published.
 
-## Figures
+## Features + figures
 
-Code to produce figures is in figures.py.
+All features and raw data are cleaned in ```preprocessing_runner.py.```
+
+The file ```analysis_runner.py``` can be used to generate figures showing classifier performance. 
 
 ## License
 

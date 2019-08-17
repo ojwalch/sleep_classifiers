@@ -115,7 +115,7 @@ for i = 1:length(actigraphyFileNames)
                 
             else
                 
-                fprintf('Invalid data...\n')
+                fprintf('Invalid data for %s: Too many NaNs in actigraphy...\n', mesaStringID);
                 outputFilename = ['../../../../data/mesa/clock_proxy/' mesaStringID '_clock_proxy.out'];
                 dlmwrite(outputFilename,[-1,-1],'delimiter',',','precision',12); 
 

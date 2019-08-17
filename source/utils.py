@@ -70,10 +70,7 @@ def convert_pdf_to_txt(pdf_path_string, all_texts):
 def smooth_gauss(y, box_pts):
     box = np.ones(box_pts) / box_pts
     mu = int(box_pts / 2.0)
-    sigma = box_pts / 6.0
-
-    ## ADDING to try to fix KNN ROC
-    sigma = 50
+    sigma = 50  # seconds
 
     for ind in range(0, box_pts):
         box[ind] = np.exp(-1 / 2 * (((ind - mu) / sigma) ** 2))
@@ -91,11 +88,9 @@ def convolve_with_dog(y, box_pts):
     box = np.ones(box_pts) / box_pts
 
     mu1 = int(box_pts / 2.0)
-    sigma1 = box_pts / 2.5
     sigma1 = 120
 
     mu2 = int(box_pts / 2.0)
-    sigma2 = box_pts * 2.0
     sigma2 = 600
 
     scalar = 0.75

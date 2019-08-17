@@ -25,7 +25,7 @@ class ActivityCountService(object):
 
     @staticmethod
     def build_activity_counts():
-        os.system('matlab -nodisplay -nosplash -nodesktop -r \"run(\'' + str(
+        os.system(Constants.MATLAB_PATH + ' -nodisplay -nosplash -nodesktop -r \"run(\'' + str(
             utils.get_project_root()) + '/source/make_counts.m\'); exit;\"')
 
     @staticmethod

@@ -53,8 +53,6 @@ class PerformanceBuilder(object):
         sleep_threshold = np.interp(true_positive_threshold, true_positive_rates, thresholds)
 
         performance = PerformanceBuilder.build_with_sleep_threshold(raw_performance, sleep_threshold)
-        if np.abs(performance.sleep_correct - true_positive_threshold) > 0.1:
-            performance.sleep_correct
 
         return performance
 

@@ -2,6 +2,11 @@ from source import utils
 
 
 class Constants(object):
+    # WAKE_THRESHOLD = 0.3  # These values were used for scikit-learn 0.20.3, See:
+    # REM_THRESHOLD = 0.35  # https://scikit-learn.org/stable/whats_new.html#version-0-21-0
+    WAKE_THRESHOLD = 0.37  #
+    REM_THRESHOLD = 0.35
+
     EPOCH_DURATION_IN_SECONDS = 30
     SECONDS_PER_MINUTE = 60
     SECONDS_PER_DAY = 3600 * 24

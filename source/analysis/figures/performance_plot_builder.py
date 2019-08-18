@@ -86,7 +86,7 @@ class PerformancePlotBuilder(object):
         font_name = "Arial"
         font_size = 14
 
-        sleep_threshold = 0.7
+        sleep_threshold = 1 - Constants.WAKE_THRESHOLD
         for feature_set in classifier_summary.performance_dictionary:
 
             raw_performances = classifier_summary.performance_dictionary[feature_set]
@@ -136,8 +136,8 @@ class PerformancePlotBuilder(object):
     def make_bland_altman(classifier_summary: ClassifierSummary, description=''):
         fig, ax = plt.subplots(nrows=3, ncols=2, figsize=(8, 8))
 
-        wake_threshold = 0.3
-        rem_threshold = 0.35
+        wake_threshold = Constants.WAKE_THRESHOLD
+        rem_threshold = Constants.REM_THRESHOLD
         
         for feature_set in classifier_summary.performance_dictionary:
             raw_performances = classifier_summary.performance_dictionary[feature_set]

@@ -70,13 +70,13 @@ class DataPlotBuilder(object):
             data_path + subject_id + '_cleaned_psg.out') and
             os.path.isfile(data_path + subject_id + '_cleaned_counts.out') and
             os.stat(data_path + subject_id + '_cleaned_motion.out').st_size > 0) and os.path.isfile(
-            circadian_data_path + subject_id + '_clock_proxy.out'):
+            circadian_data_path + subject_id + '_clock_proxy.txt'):
 
             hr = np.genfromtxt(data_path + subject_id + '_cleaned_hr.out', delimiter=' ')
             motion = np.genfromtxt(data_path + subject_id + '_cleaned_motion.out', delimiter=' ')
             scores = np.genfromtxt(data_path + subject_id + '_cleaned_psg.out', delimiter=' ')
             counts = np.genfromtxt(data_path + subject_id + '_cleaned_counts.out', delimiter=',')
-            circ_model = np.genfromtxt(circadian_data_path + subject_id + '_clock_proxy.out', delimiter=',')
+            circ_model = np.genfromtxt(circadian_data_path + subject_id + '_clock_proxy.txt', delimiter=',')
 
             min_time = min(scores[:, 0])
             max_time = max(scores[:, 0])

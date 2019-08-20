@@ -15,7 +15,7 @@ for subject_num = valid_subjects
     fprintf('Running subject %d...\n',subject_num)
     
     % Load data
-    stepsFilename = ['../../../../data/steps/' int2str(subject_num) '_steps.out'];
+    stepsFilename = ['../../../../data/steps/' int2str(subject_num) '_steps.txt'];
     scoresFilename = ['../../../../outputs/cropped/' int2str(subject_num) '_cleaned_psg.out'];
     
     if exist(stepsFilename, 'file') == 2
@@ -138,7 +138,7 @@ for subject_num = valid_subjects
             figure(1);
             plot(outputTimestampsSeconds - min(outputTimestampsSeconds),outputCircadianX); hold on; drawnow;
 
-            outputFilename = ['../../../../data/circadian_predictions/' int2str(subject_num) '_clock_proxy.out'];
+            outputFilename = ['../../../../data/circadian_predictions/' int2str(subject_num) '_clock_proxy.txt'];
             dlmwrite(outputFilename,output,'delimiter',',','precision',12); % w/o precision, won't save correctly
             
         end

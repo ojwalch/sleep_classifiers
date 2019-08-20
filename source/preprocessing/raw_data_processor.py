@@ -14,8 +14,8 @@ class RawDataProcessor:
 
     @staticmethod
     def crop_all(subject_id):
-        psg_raw_collection = PSGService.read_raw(subject_id)
-
+        # psg_raw_collection = PSGService.read_raw(subject_id)  # Used to extract PSG details from the reports
+        psg_raw_collection = PSGService.read_precleaned(subject_id)  # Loads already extracted PSG data
         motion_collection = MotionService.load_raw(subject_id)
         heart_rate_collection = HeartRateService.load_raw(subject_id)
 

@@ -88,4 +88,4 @@ class TestMotionService(TestCase):
 
         file_path = MotionService.get_raw_file_path(subject_id)
 
-        self.assertEqual(motion_dir.joinpath("subject1_sleepScores.txt"), file_path)
+        self.assertEqual(motion_dir.joinpath("subject1_acceleration.txt"), file_path)

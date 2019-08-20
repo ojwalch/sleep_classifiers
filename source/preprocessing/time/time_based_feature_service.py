@@ -66,7 +66,7 @@ class TimeBasedFeatureService(object):
     @staticmethod
     def build_circadian_model(subject_id, valid_epochs):
         circadian_file = utils.get_project_root().joinpath('data/circadian_predictions/' + subject_id +
-                                                           '_clock_proxy.out')
+                                                           '_clock_proxy.txt')
         if circadian_file.is_file():
             circadian_model = pd.read_csv(str(circadian_file), delimiter=',').values
 

@@ -48,4 +48,4 @@ class MotionService(object):
     @staticmethod
     def get_raw_file_path(subject_id):
         project_root = utils.get_project_root()
-        return project_root.joinpath('data/motion/' + subject_id + '_sleepScores.txt')
+        return project_root.joinpath('data/motion/' + subject_id + '_acceleration.txt')

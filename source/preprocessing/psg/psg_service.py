@@ -1,3 +1,5 @@
+import csv
+
 import numpy as np
 import pandas as pd
 
@@ -54,6 +56,31 @@ class PSGService(object):
             report_summary = PSGReportProcessor.get_summary_from_docx(psg_report_path)
             data = VitaportProcessor.parse(report_summary, psg_stage_path)
             return PSGRawDataCollection(subject_id=subject_id, data=data)
+
+    @staticmethod
+    def read_precleaned(subject_id):
+        psg_path = str(utils.get_project_root().joinpath('data/labels/' + subject_id + '_labeled_sleep.txt'))
+        data = []
+
+        with open(psg_path, 'rt') as csv_file:
+            file_reader = csv.reader(csv_file, delimiter=' ', quotechar='|')
+            count = 0
+            rows_per_epoch = 1
+            for row in file_reader:
+                if count == 0:
+                    start_time = float(row[0])
+                    start_score = int(row[1])
+                    epoch = Epoch(timestamp=start_time, index=1)
+                    data.append(StageItem(epoch=epoch, stage=PSGConverter.get_label_from_int(start_score)))
+                else:
+                    timestamp = start_time + count * 30
+                    score = int(row[1])
+                    epoch = Epoch(timestamp=timestamp,
+                                  index=(1 + int(np.floor(count / rows_per_epoch))))
+
+                    data.append(StageItem(epoch=epoch, stage=PSGConverter.get_label_from_int(score)))
+                count = count + 1
+        return PSGRawDataCollection(subject_id=subject_id, data=data)
 
     @staticmethod
     def crop(psg_raw_collection, interval):

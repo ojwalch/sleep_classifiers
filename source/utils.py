@@ -1,5 +1,11 @@
+from io import StringIO
 from pathlib import Path
 
+import numpy as np
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -7,12 +13,6 @@ from sklearn.neural_network import MLPClassifier
 
 from source.analysis.setup.attributed_classifier import AttributedClassifier
 from source.analysis.setup.feature_type import FeatureType
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.converter import TextConverter
-from pdfminer.layout import LAParams
-from pdfminer.pdfpage import PDFPage
-from io import StringIO
-import numpy as np
 
 
 def get_project_root() -> Path:
@@ -32,7 +32,8 @@ def get_classifiers():
                                  classifier=KNeighborsClassifier(weights='distance')),
             AttributedClassifier(name='Neural Net',
                                  classifier=MLPClassifier(activation='relu', hidden_layer_sizes=(15, 15, 15),
-                                                          max_iter=1000, alpha=0.01, solver='lbfgs'))]
+                                                          max_iter=2000, alpha=0.01, solver='adam', verbose=False,
+                                                          n_iter_no_change=20))]
 
 
 def get_base_feature_sets():

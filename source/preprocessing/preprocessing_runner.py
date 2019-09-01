@@ -10,11 +10,12 @@ from source.preprocessing.time.circadian_service import CircadianService
 
 def run_preprocessing(subject_set):
     start_time = time.time()
+
     for subject in subject_set:
         print("Cropping data from subject " + str(subject) + "...")
         RawDataProcessor.crop_all(str(subject))
 
-    ActivityCountService.build_activity_counts()
+    # ActivityCountService.build_activity_counts()  # This uses MATLAB, but has been replaced with a python implementation
     CircadianService.build_circadian_model()
     CircadianService.build_circadian_mesa()
 

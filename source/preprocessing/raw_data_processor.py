@@ -1,6 +1,7 @@
 import numpy as np
 
 from source import utils
+from source.preprocessing.activity_count.activity_count_service import ActivityCountService
 from source.preprocessing.epoch import Epoch
 from source.preprocessing.heart_rate.heart_rate_service import HeartRateService
 from source.preprocessing.interval import Interval
@@ -30,6 +31,7 @@ class RawDataProcessor:
         PSGService.write(psg_raw_collection)
         MotionService.write(motion_collection)
         HeartRateService.write(heart_rate_collection)
+        ActivityCountService.build_activity_counts_without_matlab(subject_id, motion_collection.data)  # Builds activity counts with python, not MATLAB
 
     @staticmethod
     def get_intersecting_interval(collection_list):

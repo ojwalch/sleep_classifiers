@@ -8,9 +8,9 @@ This code uses Python 3.7.
 
 ## Data
 
-Data collected using the Apple Watch is available on PhysioNet: [https://alpha.physionet.org/content/sleep-accel/1.0.0/]
+Data collected using the Apple Watch is available on PhysioNet: [link](https://alpha.physionet.org/content/sleep-accel/1.0.0/)
 
-The MESA dataset is available for download at the (National Sleep Research Resource)[https://sleepdata.org]
+The MESA dataset is available for download at the [National Sleep Research Resource](https://sleepdata.org)
 
 ## Features + figures
 

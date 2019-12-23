@@ -36,10 +36,10 @@ class FeatureBuilder(object):
     @staticmethod
     def build_from_time(subject_id, valid_epochs):
 
-        circadian_feature = TimeBasedFeatureService.build_circadian_model(subject_id, valid_epochs)
+        # circadian_feature = TimeBasedFeatureService.build_circadian_model(subject_id, valid_epochs)
         cosine_feature = TimeBasedFeatureService.build_cosine(valid_epochs)
         time_feature = TimeBasedFeatureService.build_time(valid_epochs)
 
-        TimeBasedFeatureService.write_circadian_model(subject_id, circadian_feature)
+        # TimeBasedFeatureService.write_circadian_model(subject_id, circadian_feature)
         TimeBasedFeatureService.write_cosine(subject_id, cosine_feature)
         TimeBasedFeatureService.write_time(subject_id, time_feature)

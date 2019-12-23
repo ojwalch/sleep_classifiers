@@ -40,7 +40,10 @@ def get_base_feature_sets():
     return [[FeatureType.count],
             [FeatureType.heart_rate],
             [FeatureType.count, FeatureType.heart_rate],
-            [FeatureType.count, FeatureType.heart_rate, FeatureType.circadian_model]]
+            [FeatureType.count, FeatureType.heart_rate, FeatureType.cosine]]
+            # 12-23-19 note: I'm making the default base feature use cosine, not circadian model
+            # so that it doesn't require MATLAB to run.
+            # Feature set that uses cosine: [FeatureType.count, FeatureType.heart_rate, FeatureType.circadian_model]]
 
 
 def convert_pdf_to_txt(pdf_path_string, all_texts):

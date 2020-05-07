@@ -68,17 +68,19 @@ class CurvePerformanceBuilder(object):
 
     @staticmethod
     def build_three_class_roc_with_binary_search(raw_performances: [RawPerformance]):
-
+        ''' This function runs two binary searches-- first, to match a given wake accuracy value,
+        and second, the try to find a threshold that balances the NREM and REM class accuracies '''
         three_class_performances = []
 
-        number_of_wake_scored_as_sleep_bins = 20
-        false_positive_buffer = 0.001
-        max_attempts_binary_search_wake = 50
-        rem_nrem_accuracy_tolerance = 1e-2
-        max_attempts_binary_search_rem_nrem = 15
-        wake_scored_as_sleep_interpolation_point = 0.4
-        goal_fraction_wake_scored_as_sleep_spread = []
+        number_of_wake_scored_as_sleep_bins = 20  # Bin size for the x-dimension of this plot
+        false_positive_buffer = 0.001  # How close to the target wake false positive rate we need to be before stopping
+        max_attempts_binary_search_wake = 50  # Max number of times the search will try to find a given wake accuracy
+        rem_nrem_accuracy_tolerance = 1e-2  # How close the NREM and REM class accuracies need to be before stopping
+        max_attempts_binary_search_rem_nrem = 15  # Max times the search will try to balance REM and NREM accuracies
+        wake_scored_as_sleep_interpolation_point = 0.4  # Point to report values in the table for
+        goal_fraction_wake_scored_as_sleep_spread = []  # Wake false positive rate spread (x-axis of plot)
 
+        #  Initialize holders for wake, NREM, REM accuracies
         for i in range(0, number_of_wake_scored_as_sleep_bins):
             goal_fraction_wake_scored_as_sleep_spread.append(i / (number_of_wake_scored_as_sleep_bins * 1.0))
 
@@ -86,8 +88,10 @@ class CurvePerformanceBuilder(object):
         cumulative_nrem_accuracies = np.zeros(np.shape(goal_fraction_wake_scored_as_sleep_spread))
         cumulative_rem_accuracies = np.zeros(np.shape(goal_fraction_wake_scored_as_sleep_spread))
         cumulative_accuracies = np.zeros(np.shape(goal_fraction_wake_scored_as_sleep_spread))
+
         cumulative_counter = 0
 
+        # Loop over all training/testing splits
         for raw_performance in raw_performances:
 
             true_labels = raw_performance.true_labels
@@ -104,14 +108,19 @@ class CurvePerformanceBuilder(object):
             true_nrem_indices = np.where(true_labels == 1)[0]
             true_rem_indices = np.where(true_labels == 2)[0]
 
+            #  Try to find a threshold that matches a target fraction wake scored as sleep
             for goal_fraction_wake_scored_as_sleep in goal_fraction_wake_scored_as_sleep_spread:
 
                 fraction_wake_scored_as_sleep = -1
                 binary_search_counter = 0
 
+                # While we haven't found the target wake false positive rate
+                # (and haven't exceeded the number of allowable searches), keep searching:
                 while (fraction_wake_scored_as_sleep < goal_fraction_wake_scored_as_sleep - false_positive_buffer
-                       or fraction_wake_scored_as_sleep >= goal_fraction_wake_scored_as_sleep + false_positive_buffer) and binary_search_counter < max_attempts_binary_search_wake:
+                       or fraction_wake_scored_as_sleep >= goal_fraction_wake_scored_as_sleep + false_positive_buffer) \
+                        and binary_search_counter < max_attempts_binary_search_wake:
 
+                    # If this is the first iteration on the binary search, initialize.
                     if binary_search_counter == 0:
                         threshold_for_sleep = 0.5
                         threshold_delta = 0.25
@@ -128,8 +137,7 @@ class CurvePerformanceBuilder(object):
                     if goal_fraction_wake_scored_as_sleep == 0:
                         threshold_for_sleep = 1.0
 
-                    predicted_sleep_indices = np.where(1 - np.array(class_probabilities[:, 0]) >= threshold_for_sleep)[
-                        0]
+                    predicted_sleep_indices = np.where(1 - np.array(class_probabilities[:, 0]) >= threshold_for_sleep)[0]
 
                     predicted_labels = np.zeros(np.shape(true_labels))
                     predicted_labels[predicted_sleep_indices] = 1
@@ -142,6 +150,7 @@ class CurvePerformanceBuilder(object):
 
                     binary_search_counter = binary_search_counter + 1
 
+                # Next, try to find a threshold that balances the REM and NREM class accuracies
                 if binary_search_counter < max_attempts_binary_search_wake:
 
                     smallest_accuracy_difference = 2
@@ -155,6 +164,8 @@ class CurvePerformanceBuilder(object):
                     threshold_for_rem = 0.5
                     threshold_delta_rem = 0.5
 
+                    # While we're outside the tolerance window for equalizing REM/NREM accuracies and
+                    # we haven't exceed the maximum number of search attempts, keep hunting
                     while count_thresh < max_attempts_binary_search_rem_nrem and \
                             smallest_accuracy_difference > rem_nrem_accuracy_tolerance:
 
@@ -163,6 +174,7 @@ class CurvePerformanceBuilder(object):
                         for predicted_sleep_index in range(len(predicted_sleep_indices)):
                             predicted_sleep_epoch = predicted_sleep_indices[predicted_sleep_index]
 
+                            # Apply the threshold to split REM and NREM sleep
                             if class_probabilities[predicted_sleep_epoch, 2] > threshold_for_rem:
                                 predicted_labels[predicted_sleep_epoch] = 2  # Set to REM sleep
                             else:
@@ -175,6 +187,7 @@ class CurvePerformanceBuilder(object):
                             best_accuracy = accuracy
                             kappa_at_best_accuracy = kappa
 
+                        # Assess accuracy at the current threshold
                         predicted_nrem_indices = np.where(predicted_labels == 1)[0]
                         predicted_rem_indices = np.where(predicted_labels == 2)[0]
 
@@ -188,6 +201,7 @@ class CurvePerformanceBuilder(object):
                         else:
                             rem_accuracy = 0
 
+                        # Update current accuracy difference and adjust the threshold for REM sleep
                         sleep_accuracy = (len(correct_nrem_indices) + len(correct_rem_indices)) / (
                                 1.0 * len(true_nrem_indices) + 1.0 * len(true_rem_indices))
 
@@ -222,6 +236,7 @@ class CurvePerformanceBuilder(object):
             accuracy = accuracies[index_of_best_accuracy]
             kappa = kappas[index_of_best_accuracy]
 
+            # Interpolate and add the vectors to our running totals
             cumulative_accuracies = cumulative_accuracies + np.interp(goal_fraction_wake_scored_as_sleep_spread,
                                                                       wake_scored_as_sleep_spread,
                                                                       sleep_accuracy_spread)
@@ -245,12 +260,13 @@ class CurvePerformanceBuilder(object):
                                      nrem_class_accuracies)
 
             three_class_performance = ThreeClassPerformance(accuracy=accuracy,
-                                                            wake_correct= 1 - wake_scored_as_sleep_interpolation_point,
+                                                            wake_correct=1 - wake_scored_as_sleep_interpolation_point,
                                                             rem_correct=rem_correct,
                                                             nrem_correct=nrem_correct,
                                                             kappa=kappa)
             three_class_performances.append(three_class_performance)
 
+        # Average over all the train/test splits
         cumulative_accuracies = cumulative_accuracies / cumulative_counter
         cumulative_nrem_accuracies = cumulative_nrem_accuracies / cumulative_counter
         cumulative_rem_accuracies = cumulative_rem_accuracies / cumulative_counter
@@ -259,9 +275,9 @@ class CurvePerformanceBuilder(object):
                                                     true_positive_rates=cumulative_accuracies)
 
         rem_roc_performance = ROCPerformance(false_positive_rates=goal_fraction_wake_scored_as_sleep_spread,
-                                             true_positive_rates=cumulative_nrem_accuracies)
+                                             true_positive_rates=cumulative_rem_accuracies)
 
         nrem_roc_performance = ROCPerformance(false_positive_rates=goal_fraction_wake_scored_as_sleep_spread,
-                                              true_positive_rates=cumulative_rem_accuracies)
+                                              true_positive_rates=cumulative_nrem_accuracies)
 
         return sleep_wake_roc_performance, rem_roc_performance, nrem_roc_performance, three_class_performances

@@ -181,20 +181,21 @@ def figures_compare_time_based_features():
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_time_only_sw_roc')
 
 
-start_time = time.time()
-figure_leave_one_out_roc_and_pr()
+if __name__ == "__main__":
+    start_time = time.time()
+    figure_leave_one_out_roc_and_pr()
+    #
+    # figures_mc_sleep_wake()
+    # figures_mc_three_class()
+    #
+    # figures_leave_one_out_sleep_wake_performance()
+    # figures_leave_one_out_three_class_performance()
+    # figure_leave_one_out_roc_and_pr()
+    #
+    # figures_mesa_sleep_wake()
+    # figures_mesa_three_class()
+    #
+    # figures_compare_time_based_features()
+    end_time = time.time()
 
-figures_mc_sleep_wake()
-figures_mc_three_class()
-
-figures_leave_one_out_sleep_wake_performance()
-figures_leave_one_out_three_class_performance()
-figure_leave_one_out_roc_and_pr()
-
-figures_mesa_sleep_wake()
-figures_mesa_three_class()
-
-figures_compare_time_based_features()
-end_time = time.time()
-
-print('Elapsed time to generate figure: ' + str((end_time - start_time) / 60) + ' minutes')
+    print('Elapsed time to generate figure: ' + str((end_time - start_time) / 60) + ' minutes')

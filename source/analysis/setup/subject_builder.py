@@ -1,5 +1,6 @@
 from source.analysis.setup.feature_type import FeatureType
 from source.analysis.setup.subject import Subject
+from source.constants import Constants
 from source.preprocessing.activity_count.activity_count_feature_service import ActivityCountFeatureService
 from source.preprocessing.heart_rate.heart_rate_feature_service import HeartRateFeatureService
 from source.preprocessing.psg.psg_label_service import PSGLabelService
@@ -36,7 +37,10 @@ class SubjectBuilder(object):
         feature_count = ActivityCountFeatureService.load(subject_id)
         feature_hr = HeartRateFeatureService.load(subject_id)
         feature_time = TimeBasedFeatureService.load_time(subject_id)
-        feature_circadian = TimeBasedFeatureService.load_circadian_model(subject_id)
+        if Constants.INCLUDE_CIRCADIAN:
+            feature_circadian = TimeBasedFeatureService.load_circadian_model(subject_id)
+        else:
+            feature_circadian = None
         feature_cosine = TimeBasedFeatureService.load_cosine(subject_id)
         labeled_sleep = PSGLabelService.load(subject_id)
 

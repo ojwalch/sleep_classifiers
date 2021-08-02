@@ -12,6 +12,6 @@ class ParameterSearch(object):
     @staticmethod
     def run_search(attributed_classifier, training_x, training_y, scoring):
         parameter_range = ParameterSearch.parameter_dictionary[attributed_classifier.name]
-        grid_search = GridSearchCV(attributed_classifier.classifier, parameter_range, scoring=scoring, cv=3, iid=False)
+        grid_search = GridSearchCV(attributed_classifier.classifier, parameter_range, scoring=scoring, cv=3)
         grid_search.fit(training_x, training_y)
         return grid_search.best_params_

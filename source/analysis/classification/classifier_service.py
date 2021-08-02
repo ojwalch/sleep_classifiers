@@ -112,8 +112,8 @@ class ClassifierService(object):
     @staticmethod
     def get_class_weights(training_y):
         class_weights = class_weight.compute_class_weight('balanced',
-                                                          np.unique(training_y),
-                                                          training_y)
+                                                          classes=np.unique(training_y),
+                                                          y=training_y)
         class_weight_dict = {}
 
         if len(class_weights) == 2:

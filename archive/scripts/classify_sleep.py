@@ -127,8 +127,8 @@ def train_and_test_model(training_subjects, testing_subjects, method_key, classi
 
     # Set class weights for those methods that allow them
     class_weights = class_weight.compute_class_weight('balanced',
-                                                      np.unique(training_set_true_labels),
-                                                      training_set_true_labels)
+                                                      classes=np.unique(training_set_true_labels),
+                                                      y=training_set_true_labels)
     class_weight_dict = {0: class_weights[0], 1: class_weights[1]}
 
     if len(class_weights) > 2:  # Handles wake/NREM/REM case

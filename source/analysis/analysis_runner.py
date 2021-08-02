@@ -190,7 +190,6 @@ if __name__ == "__main__":
     #
     # figures_leave_one_out_sleep_wake_performance()
     # figures_leave_one_out_three_class_performance()
-    # figure_leave_one_out_roc_and_pr()
     #
     # figures_mesa_sleep_wake()
     # figures_mesa_three_class()

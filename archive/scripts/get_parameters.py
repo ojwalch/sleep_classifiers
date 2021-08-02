@@ -60,8 +60,8 @@ def find_best(method_key, feature_set, training_subjects):
         classifier = RandomForestClassifier()
 
     class_weights = class_weight.compute_class_weight('balanced',
-                                                      np.unique(training_set_labels),
-                                                      training_set_labels)
+                                                      classes=np.unique(training_set_labels),
+                                                      y=training_set_labels)
     class_weight_dict = {0: class_weights[0], 1: class_weights[1]}
 
     if len(class_weights) > 2:

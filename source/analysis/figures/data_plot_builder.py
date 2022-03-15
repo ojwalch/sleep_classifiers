@@ -48,13 +48,11 @@ class DataPlotBuilder(object):
     def make_data_demo(subject_id="16", snippet=False):
         hr_color = [0.8, 0.2, 0.1]
         motion_color = [0.3, 0.2, 0.8]
-        circ_color = [0.9, 0.7, 0]
         psg_color = [0.1, 0.7, 0.1]
         font_size = 16
         font_name = "Arial"
 
         data_path = str(Constants.CROPPED_FILE_PATH) + '/'
-        circadian_data_path = str(utils.get_project_root().joinpath('data/circadian_predictions/')) + '/'
         output_path = str(Constants.FIGURE_FILE_PATH) + '/'
 
         if snippet is False:
@@ -62,21 +60,20 @@ class DataPlotBuilder(object):
         else:
             fig = plt.figure(figsize=(3, 12))
 
-        num_v_plots = 5
+        num_v_plots = 4
         fig.patch.set_facecolor('white')
 
         if (os.path.isfile(data_path + subject_id + '_cleaned_hr.out') and os.path.isfile(
                 data_path + subject_id + '_cleaned_motion.out') and os.path.isfile(
             data_path + subject_id + '_cleaned_psg.out') and
             os.path.isfile(data_path + subject_id + '_cleaned_counts.out') and
-            os.stat(data_path + subject_id + '_cleaned_motion.out').st_size > 0) and os.path.isfile(
-            circadian_data_path + subject_id + '_clock_proxy.txt'):
+            os.stat(data_path + subject_id + '_cleaned_motion.out').st_size
+            > 0):
 
             hr = np.genfromtxt(data_path + subject_id + '_cleaned_hr.out', delimiter=' ')
             motion = np.genfromtxt(data_path + subject_id + '_cleaned_motion.out', delimiter=' ')
             scores = np.genfromtxt(data_path + subject_id + '_cleaned_psg.out', delimiter=' ')
             counts = np.genfromtxt(data_path + subject_id + '_cleaned_counts.out', delimiter=',')
-            circ_model = np.genfromtxt(circadian_data_path + subject_id + '_clock_proxy.txt', delimiter=',')
 
             min_time = min(scores[:, 0])
             max_time = max(scores[:, 0])
@@ -160,26 +157,7 @@ class DataPlotBuilder(object):
                 plt.xlabel(str(window_size) + ' sec window', fontsize=font_size, fontname=font_name)
                 plt.ylim(35, 100)
 
-            else:
-                y_min = 40
-                y_max = 130
-                plt.ylim(y_min, y_max)
-                current_axis = plt.gca()
-                current_axis.add_patch(
-                    Rectangle((sample_point, y_min), window_size, y_max - y_min, alpha=0.35, facecolor="gray"))
-                plt.ylim(40, 130)
-
             ax = plt.subplot(num_v_plots, 1, 4)
-            ax.plot(circ_model[:, 0], -circ_model[:, 1], color=circ_color)
-            plt.ylabel('Clock Proxy', fontsize=font_size, fontname=font_name)
-            DataPlotBuilder.tidy_data_plot(min_time, max_time, dt, ax)
-            if snippet:
-                plt.axis('off')
-                plt.ylim(-1, -1)
-            else:
-                plt.ylim(.2, 1.2)
-
-            ax = plt.subplot(num_v_plots, 1, 5)
 
             relabeled_scores = DataPlotBuilder.convert_labels_for_hypnogram(scores[:, 1])
             ax.step(scores[:, 0], relabeled_scores, color=psg_color)

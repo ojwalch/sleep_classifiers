@@ -64,7 +64,7 @@ def figures_mc_sleep_wake():
     classifiers = utils.get_classifiers()
 
     feature_sets = utils.get_base_feature_sets()
-    trial_count = 20
+    trial_count = 21
 
     for attributed_classifier in classifiers:
         if Constants.VERBOSE:
@@ -181,9 +181,95 @@ def figures_compare_time_based_features():
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_time_only_sw_roc')
 
 
+def figures_train_health_test_disordered():
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = SleepWakeClassifierSummaryBuilder.build_train_healthy_test_disordered(attributed_classifier, feature_sets)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, 1, '_sw_pr')
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, 1, '_sw_roc')
+
+
+def figures_mc_sleep_wake_disordered():
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+    trial_count = 20
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = \
+            SleepWakeClassifierSummaryBuilder.build_monte_carlo_disordered(
+                attributed_classifier, feature_sets, trial_count)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr')
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc')
+
+
+def figures_mc_sleep_wake_disordered_apnea_only():
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+    trial_count = 22
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = \
+            SleepWakeClassifierSummaryBuilder.build_monte_carlo_apnea_only(
+                attributed_classifier, feature_sets, trial_count)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr')
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc')
+
+def figures_mc_disordered_and_healthy_together():
+    classifiers = utils.get_classifiers()
+    feature_sets = utils.get_base_feature_sets()
+    trial_count = 23
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = \
+            SleepWakeClassifierSummaryBuilder.build_monte_carlo_everyone(
+                attributed_classifier, feature_sets, trial_count)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr')
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc')
+
+
 if __name__ == "__main__":
     start_time = time.time()
-    figure_leave_one_out_roc_and_pr()
+
+    # figures_train_health_test_disordered()
+    # figures_mc_sleep_wake_disordered_apnea_only()
+    # figures_mc_sleep_wake_disordered()
+    # figures_mc_sleep_wake()
+    figures_mc_disordered_and_healthy_together()
+
+    # figure_leave_one_out_roc_and_pr()
     #
     # figures_mc_sleep_wake()
     # figures_mc_three_class()

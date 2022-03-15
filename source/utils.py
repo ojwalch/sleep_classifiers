@@ -20,6 +20,18 @@ def get_project_root() -> Path:
 
 
 def get_classifiers():
+
+    return [AttributedClassifier(name='Random Forest',
+                                 classifier=RandomForestClassifier(n_estimators=100, max_features=1.0,
+                                                                   max_depth=10,
+                                                                   min_samples_split=10, min_samples_leaf=32,
+                                                                   bootstrap=True)),
+            AttributedClassifier(name='Logistic Regression',
+                                 classifier=LogisticRegression(penalty='l1', solver='liblinear', verbose=0,
+                                                               multi_class='auto')),
+            AttributedClassifier(name='k-Nearest Neighbors',
+                                 classifier=KNeighborsClassifier(
+                                     weights='distance'))]
     return [AttributedClassifier(name='Random Forest',
                                  classifier=RandomForestClassifier(n_estimators=100, max_features=1.0,
                                                                    max_depth=10,
@@ -37,6 +49,14 @@ def get_classifiers():
 
 
 def get_base_feature_sets():
+
+    return [[FeatureType.count],
+            [FeatureType.heart_rate],
+            [FeatureType.count, FeatureType.heart_rate]]
+
+    return [[FeatureType.count]]
+
+    return [[FeatureType.count, FeatureType.heart_rate]]
     return [[FeatureType.count],
             [FeatureType.heart_rate],
             [FeatureType.count, FeatureType.heart_rate],

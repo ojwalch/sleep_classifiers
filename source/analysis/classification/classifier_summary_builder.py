@@ -11,42 +11,133 @@ from source.mesa.mesa_data_service import MesaDataService
 class SleepWakeClassifierSummaryBuilder(object):
 
     @staticmethod
-    def build_monte_carlo(attributed_classifier: AttributedClassifier, feature_sets: [[FeatureType]],
+    def build_monte_carlo(attributed_classifier: AttributedClassifier,
+                          feature_sets: [[FeatureType]],
                           number_of_splits: int) -> ClassifierSummary:
         subject_ids = SubjectBuilder.get_all_subject_ids()
         subject_dictionary = SubjectBuilder.get_subject_dictionary()
 
-        data_splits = TrainTestSplitter.by_fraction(subject_ids, test_fraction=0.3, number_of_splits=number_of_splits)
+        data_splits = TrainTestSplitter.by_fraction(subject_ids,
+                                                    test_fraction=0.3,
+                                                    number_of_splits=number_of_splits)
 
-        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+    @staticmethod
+    def build_monte_carlo_everyone(attributed_classifier: AttributedClassifier,
+                          feature_sets: [[FeatureType]],
+                          number_of_splits: int) -> ClassifierSummary:
+        subject_ids_healthy = SubjectBuilder.get_all_subject_ids()
+        subject_ids_disordered = \
+            SubjectBuilder.get_all_disordered_subject_ids()
+
+        subject_dictionary = SubjectBuilder.get_subject_dictionary()
+        subject_dictionary_disordered = \
+            SubjectBuilder.get_subject_dictionary_disordered()
+
+        subject_ids = subject_ids_healthy + subject_ids_disordered
+        overall_dictionary = subject_dictionary | subject_dictionary_disordered
+
+        data_splits = TrainTestSplitter.by_fraction(subject_ids,
+                                                    test_fraction=0.3,
+                                                    number_of_splits=number_of_splits)
+
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  overall_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+
+    @staticmethod
+    def build_monte_carlo_disordered(attributed_classifier:
+    AttributedClassifier,
+                                     feature_sets: [[FeatureType]],
+                                     number_of_splits: int) -> \
+        ClassifierSummary:
+        subject_ids = SubjectBuilder.get_all_disordered_subject_ids()
+        subject_dictionary = SubjectBuilder.get_subject_dictionary_disordered()
+
+        data_splits = TrainTestSplitter.by_fraction(subject_ids,
+                                                    test_fraction=0.3,
+                                                    number_of_splits=number_of_splits)
+
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+    @staticmethod
+    def build_monte_carlo_apnea_only(attributed_classifier:
+    AttributedClassifier,
+                                     feature_sets: [[FeatureType]],
+                                     number_of_splits: int) -> \
+        ClassifierSummary:
+        subject_ids = SubjectBuilder.get_apnea_only_sleepers()
+        subject_dictionary = SubjectBuilder.get_subject_dictionary_disordered()
+
+        data_splits = TrainTestSplitter.by_fraction(subject_ids,
+                                                    test_fraction=0.3,
+                                                    number_of_splits=number_of_splits)
+
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+    @staticmethod
+    def build_train_healthy_test_disordered(attributed_classifier,
+                                            feature_sets: [[FeatureType]]) -> \
+        ClassifierSummary:
+        subject_ids_healthy = SubjectBuilder.get_all_subject_ids()
+        subject_ids_disordered = \
+            SubjectBuilder.get_all_disordered_subject_ids()
+
+        subject_dictionary = SubjectBuilder.get_subject_dictionary()
+        subject_dictionary_disordered = \
+            SubjectBuilder.get_subject_dictionary_disordered()
+
+        data_splits = [DataSplit(training_set=subject_ids_healthy,
+                                 testing_set=subject_ids_disordered)]
+        overall_dictionary = subject_dictionary | subject_dictionary_disordered
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  overall_dictionary,
                                                                   attributed_classifier,
                                                                   feature_sets)
 
     @staticmethod
     def build_leave_one_out(attributed_classifier: AttributedClassifier,
-                            feature_sets: [[FeatureType]]) -> ClassifierSummary:
+                            feature_sets: [
+                                [FeatureType]]) -> ClassifierSummary:
         subject_ids = SubjectBuilder.get_all_subject_ids()
         subject_dictionary = SubjectBuilder.get_subject_dictionary()
 
         data_splits = TrainTestSplitter.leave_one_out(subject_ids)
 
-        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  subject_dictionary,
                                                                   attributed_classifier,
                                                                   feature_sets)
 
     @staticmethod
-    def run_feature_sets(data_splits: [DataSplit], subject_dictionary, attributed_classifier: AttributedClassifier,
+    def run_feature_sets(data_splits: [DataSplit], subject_dictionary,
+                         attributed_classifier: AttributedClassifier,
                          feature_sets: [[FeatureType]]):
         performance_dictionary = {}
         for feature_set in feature_sets:
-            raw_performance_results = ClassifierService.run_sw(data_splits, attributed_classifier,
-                                                               subject_dictionary, feature_set)
-            performance_dictionary[tuple(feature_set)] = raw_performance_results
+            raw_performance_results = ClassifierService.run_sw(data_splits,
+                                                               attributed_classifier,
+                                                               subject_dictionary,
+                                                               feature_set)
+            performance_dictionary[
+                tuple(feature_set)] = raw_performance_results
 
         return ClassifierSummary(attributed_classifier, performance_dictionary)
 
     @staticmethod
-    def build_mesa(attributed_classifier: AttributedClassifier, feature_sets: [[FeatureType]]):
+    def build_mesa(attributed_classifier: AttributedClassifier,
+                   feature_sets: [[FeatureType]]):
         apple_watch_subjects = SubjectBuilder.get_subject_dictionary()
         mesa_subjects = MesaDataService.get_all_subjects()
         training_set = []
@@ -61,10 +152,12 @@ class SleepWakeClassifierSummaryBuilder(object):
             testing_set.append(mesa_subject.subject_id)
             mesa_dictionary[mesa_subject.subject_id] = mesa_subject
 
-        data_split = DataSplit(training_set=training_set, testing_set=testing_set)
+        data_split = DataSplit(training_set=training_set,
+                               testing_set=testing_set)
         apple_watch_subjects.update(mesa_dictionary)
 
-        return SleepWakeClassifierSummaryBuilder.run_feature_sets([data_split], apple_watch_subjects,
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets([data_split],
+                                                                  apple_watch_subjects,
                                                                   attributed_classifier,
                                                                   feature_sets)
 
@@ -72,48 +165,60 @@ class SleepWakeClassifierSummaryBuilder(object):
 class ThreeClassClassifierSummaryBuilder(object):
 
     @staticmethod
-    def build_monte_carlo(attributed_classifier: AttributedClassifier, feature_sets: [[FeatureType]],
+    def build_monte_carlo(attributed_classifier: AttributedClassifier,
+                          feature_sets: [[FeatureType]],
                           number_of_splits: int) -> ClassifierSummary:
         subject_ids = SubjectBuilder.get_all_subject_ids()
         subject_dictionary = SubjectBuilder.get_subject_dictionary()
 
-        data_splits = TrainTestSplitter.by_fraction(subject_ids, test_fraction=0.3, number_of_splits=number_of_splits)
+        data_splits = TrainTestSplitter.by_fraction(subject_ids,
+                                                    test_fraction=0.3,
+                                                    number_of_splits=number_of_splits)
 
-        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                   subject_dictionary,
                                                                    attributed_classifier,
                                                                    feature_sets)
 
     @staticmethod
     def build_leave_one_out(attributed_classifier: AttributedClassifier,
-                            feature_sets: [[FeatureType]]) -> ClassifierSummary:
+                            feature_sets: [
+                                [FeatureType]]) -> ClassifierSummary:
         subject_ids = SubjectBuilder.get_all_subject_ids()
         subject_dictionary = SubjectBuilder.get_subject_dictionary()
 
         data_splits = TrainTestSplitter.leave_one_out(subject_ids)
 
-        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                   subject_dictionary,
                                                                    attributed_classifier,
                                                                    feature_sets)
 
     @staticmethod
-    def run_feature_sets(data_splits: [DataSplit], subject_dictionary, attributed_classifier: AttributedClassifier,
+    def run_feature_sets(data_splits: [DataSplit], subject_dictionary,
+                         attributed_classifier: AttributedClassifier,
                          feature_sets: [[FeatureType]], use_preloaded=False):
         performance_dictionary = {}
         for feature_set in feature_sets:
             if use_preloaded:
-                raw_performance_results = ClassifierService.run_three_class_with_loaded_model(data_splits,
-                                                                                              attributed_classifier,
-                                                                                              subject_dictionary,
-                                                                                              feature_set)
+                raw_performance_results = \
+                    ClassifierService.run_three_class_with_loaded_model(
+                        data_splits,
+                        attributed_classifier,
+                        subject_dictionary,
+                        feature_set)
             else:
-                raw_performance_results = ClassifierService.run_three_class(data_splits, attributed_classifier,
-                                                                            subject_dictionary, feature_set)
-            performance_dictionary[tuple(feature_set)] = raw_performance_results
+                raw_performance_results = ClassifierService.run_three_class(
+                    data_splits, attributed_classifier,
+                    subject_dictionary, feature_set)
+            performance_dictionary[
+                tuple(feature_set)] = raw_performance_results
 
         return ClassifierSummary(attributed_classifier, performance_dictionary)
 
     @staticmethod
-    def build_mesa_leave_one_out(attributed_classifier: AttributedClassifier, feature_sets: [[FeatureType]]):
+    def build_mesa_leave_one_out(attributed_classifier: AttributedClassifier,
+                                 feature_sets: [[FeatureType]]):
         apple_watch_subjects = SubjectBuilder.get_subject_dictionary()
         mesa_subjects = MesaDataService.get_all_subjects()
         training_set = []
@@ -127,17 +232,21 @@ class ThreeClassClassifierSummaryBuilder(object):
             mesa_subject.subject_id = 'mesa' + mesa_subject.subject_id
             mesa_dictionary[mesa_subject.subject_id] = mesa_subject
             testing_set = [mesa_subject.subject_id]
-            data_split = DataSplit(training_set=training_set, testing_set=testing_set)
+            data_split = DataSplit(training_set=training_set,
+                                   testing_set=testing_set)
             data_splits.append(data_split)
 
         apple_watch_subjects.update(mesa_dictionary)
 
-        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits, apple_watch_subjects,
+        return ThreeClassClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                   apple_watch_subjects,
                                                                    attributed_classifier,
-                                                                   feature_sets, True)
+                                                                   feature_sets,
+                                                                   True)
 
     @staticmethod
-    def build_mesa_all_combined(attributed_classifier: AttributedClassifier, feature_sets: [[FeatureType]]):
+    def build_mesa_all_combined(attributed_classifier: AttributedClassifier,
+                                feature_sets: [[FeatureType]]):
         apple_watch_subjects = SubjectBuilder.get_subject_dictionary()
         mesa_subjects = MesaDataService.get_all_subjects()
         training_set = []
@@ -152,9 +261,11 @@ class ThreeClassClassifierSummaryBuilder(object):
             mesa_dictionary[mesa_subject.subject_id] = mesa_subject
             testing_set.append(mesa_subject.subject_id)
 
-        data_split = DataSplit(training_set=training_set, testing_set=testing_set)
+        data_split = DataSplit(training_set=training_set,
+                               testing_set=testing_set)
         apple_watch_subjects.update(mesa_dictionary)
 
-        return ThreeClassClassifierSummaryBuilder.run_feature_sets([data_split], apple_watch_subjects,
-                                                                   attributed_classifier,
-                                                                   feature_sets)
+        return ThreeClassClassifierSummaryBuilder.run_feature_sets(
+            [data_split], apple_watch_subjects,
+            attributed_classifier,
+            feature_sets)

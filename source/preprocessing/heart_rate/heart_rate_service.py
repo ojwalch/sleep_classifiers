@@ -1,9 +1,12 @@
 import numpy as np
+
+import numpy as np
 import pandas as pd
 
 from source import utils
 from source.constants import Constants
-from source.preprocessing.heart_rate.heart_rate_collection import HeartRateCollection
+from source.preprocessing.heart_rate.heart_rate_collection import \
+    HeartRateCollection
 
 
 class HeartRateService(object):
@@ -13,22 +16,43 @@ class HeartRateService(object):
         raw_hr_path = HeartRateService.get_raw_file_path(subject_id)
         heart_rate_array = HeartRateService.load(raw_hr_path, ",")
         heart_rate_array = utils.remove_repeats(heart_rate_array)
-        return HeartRateCollection(subject_id=subject_id, data=heart_rate_array)
+        return HeartRateCollection(subject_id=subject_id,
+                                   data=heart_rate_array)
+
+    @staticmethod
+    def load_raw_disordered(subject_id):
+        subject_id = subject_id[1:]
+
+        if len(subject_id) == 1:
+            subject_id = "0" + subject_id
+
+        raw_hr_path = str(utils.get_project_root().joinpath(
+            'data/disordered_sleepers/AWS0' + subject_id +
+            ' hr_data.csv'))
+        df = pd.read_csv(raw_hr_path)
+        heart_rate_array = df.values
+
+        heart_rate_array = utils.remove_repeats(heart_rate_array)
+        return HeartRateCollection(subject_id="d" + subject_id,
+                                   data=heart_rate_array)
 
     @staticmethod
     def load_cropped(subject_id):
         cropped_hr_path = HeartRateService.get_cropped_file_path(subject_id)
         heart_rate_array = HeartRateService.load(cropped_hr_path)
-        return HeartRateCollection(subject_id=subject_id, data=heart_rate_array)
+        return HeartRateCollection(subject_id=subject_id,
+                                   data=heart_rate_array)
 
     @staticmethod
     def load(hr_file, delimiter=" "):
-        heart_rate_array = pd.read_csv(str(hr_file), delimiter=delimiter).values
+        heart_rate_array = pd.read_csv(str(hr_file),
+                                       delimiter=delimiter).values
         return heart_rate_array
 
     @staticmethod
     def write(heart_rate_collection):
-        hr_output_path = HeartRateService.get_cropped_file_path(heart_rate_collection.subject_id)
+        hr_output_path = HeartRateService.get_cropped_file_path(
+            heart_rate_collection.subject_id)
         np.savetxt(hr_output_path, heart_rate_collection.data, fmt='%f')
 
     @staticmethod
@@ -43,7 +67,8 @@ class HeartRateService(object):
 
     @staticmethod
     def get_cropped_file_path(subject_id):
-        return Constants.CROPPED_FILE_PATH.joinpath(subject_id + "_cleaned_hr.out")
+        return Constants.CROPPED_FILE_PATH.joinpath(
+            subject_id + "_cleaned_hr.out")
 
     @staticmethod
     def get_raw_file_path(subject_id):

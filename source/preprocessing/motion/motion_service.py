@@ -16,6 +16,23 @@ class MotionService(object):
         return MotionCollection(subject_id=subject_id, data=motion_array)
 
     @staticmethod
+    def load_raw_disordered(subject_id):
+        subject_id = subject_id[1:]
+
+        if len(subject_id) == 1:
+            subject_id = "0" + subject_id
+
+        raw_motion_path = str(utils.get_project_root().joinpath(
+            'data/disordered_sleepers/AWS0' + subject_id +
+            ' motion_data.csv'))
+        df = pd.read_csv(raw_motion_path)
+        motion_array = df.values
+
+        motion_array = utils.remove_repeats(motion_array)
+        return MotionCollection(subject_id="d" + subject_id, data=motion_array)
+
+
+    @staticmethod
     def load_cropped(subject_id):
         cropped_motion_path = MotionService.get_cropped_file_path(subject_id)
         motion_array = MotionService.load(cropped_motion_path)

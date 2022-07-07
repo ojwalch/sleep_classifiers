@@ -3,7 +3,7 @@ docx2txt==0.8
 joblib==0.14.1
 kiwisolver==1.2.0
 matplotlib==3.1.0
-numpy==1.18.4
+numpy==1.22.0
 pandas==1.0.3
 pdfminer==20191125
 Pillow==9.0.1

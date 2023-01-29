@@ -1,3 +1,4 @@
+
 from source.analysis.setup.feature_type import FeatureType
 from source.analysis.setup.subject import Subject
 from source.constants import Constants
@@ -56,6 +57,17 @@ class SubjectBuilder(object):
                 apnea_only_ids.append(id)
 
         return apnea_only_ids
+
+    @staticmethod
+    def get_narcolepsy_only_sleepers():
+        base_ids = SubjectBuilder.get_all_disordered_subject_ids()
+        narco_only_ids = []
+        for id in base_ids:
+            diagnoses = SubjectBuilder.subject_to_disorder(id)
+            if 'narcolepsy' in diagnoses:
+                narco_only_ids.append(id)
+
+        return narco_only_ids
 
     @staticmethod
     def get_subject_dictionary():

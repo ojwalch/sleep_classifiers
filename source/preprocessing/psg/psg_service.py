@@ -117,10 +117,7 @@ class PSGService(object):
 
         df["LocalizedDateTime"] = df.DateTime.dt.tz_localize('America/Detroit')
 
-        epoch_times = (df[
-                          "LocalizedDateTime"] - \
-                      tz.localize(datetime.utcfromtimestamp(
-                          -3600 * 5))).dt.total_seconds()
+        epoch_times = (df["LocalizedDateTime"] -  tz.localize(datetime.utcfromtimestamp(-3600 * 5))).dt.total_seconds()
         epoch_times = epoch_times.values
         stages = df.Stg.values
         index = 0

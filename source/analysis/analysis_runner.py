@@ -219,6 +219,24 @@ def figures_mc_sleep_wake_disordered():
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr')
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc')
 
+def figures_mc_train_apnea_test_narcolepsy():
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = \
+            SleepWakeClassifierSummaryBuilder.build_train_apnea_test_narcolepsy(
+                attributed_classifier, feature_sets)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr')
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc')
 
 def figures_mc_sleep_wake_disordered_apnea_only():
     classifiers = utils.get_classifiers()
@@ -262,12 +280,12 @@ def figures_mc_disordered_and_healthy_together():
 
 if __name__ == "__main__":
     start_time = time.time()
-
+    # figures_mc_train_apnea_test_narcolepsy()
     # figures_train_health_test_disordered()
     # figures_mc_sleep_wake_disordered_apnea_only()
     # figures_mc_sleep_wake_disordered()
-    # figures_mc_sleep_wake()
-    figures_mc_disordered_and_healthy_together()
+    figures_mc_sleep_wake()
+    # figures_mc_disordered_and_healthy_together()
 
     # figure_leave_one_out_roc_and_pr()
     #

@@ -105,6 +105,24 @@ class SleepWakeClassifierSummaryBuilder(object):
                                                                   overall_dictionary,
                                                                   attributed_classifier,
                                                                   feature_sets)
+    @staticmethod
+    def build_train_apnea_test_narcolepsy(attributed_classifier,
+                                            feature_sets: [[FeatureType]]) -> \
+        ClassifierSummary:
+        subject_ids_apnea = SubjectBuilder.get_apnea_only_sleepers()
+        subject_ids_narcolepsy = SubjectBuilder.get_narcolepsy_only_sleepers()
+
+        subject_dictionary = SubjectBuilder.get_subject_dictionary()
+        subject_dictionary_disordered = \
+            SubjectBuilder.get_subject_dictionary_disordered()
+
+        data_splits = [DataSplit(training_set=subject_ids_apnea,
+                                 testing_set=subject_ids_narcolepsy)]
+        overall_dictionary = subject_dictionary | subject_dictionary_disordered
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  overall_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
 
     @staticmethod
     def build_leave_one_out(attributed_classifier: AttributedClassifier,

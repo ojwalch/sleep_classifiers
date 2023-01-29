@@ -5,7 +5,7 @@ from source.preprocessing.activity_count.activity_count_feature_service import A
 from source.preprocessing.heart_rate.heart_rate_feature_service import HeartRateFeatureService
 from source.preprocessing.psg.psg_label_service import PSGLabelService
 from source.preprocessing.time.time_based_feature_service import TimeBasedFeatureService
-
+import matplotlib.pyplot as plt
 
 class SubjectBuilder(object):
 
@@ -24,6 +24,44 @@ class SubjectBuilder(object):
         return subjects_as_strings
 
     @staticmethod
+    def get_full_sleep_disorder_cohort():
+        # This is excluding anyone without a 100% full night and any missing data.
+        return ["d02", "d03", "d04", "d05", "d08", "d09",
+                "d10", "d11", "d12", "d13", "d15", "d16", "d18",
+                "d19", "d21", "d23", "d24", "d25", "d28",
+                "d29", "d30", "d32", "d34", "d35", "d36", "d37",
+                "d38", "d39", "d40"]
+
+        # return ["d01", "d02", "d03", "d04", "d05", "d06", "d07", "d08", "d09",
+        #         "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18",
+        #         "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d28",
+        #         "d29", "d30", "d31", "d32", "d33", "d34", "d35", "d36", "d37",
+        #         "d38", "d39", "d40"]
+
+    @staticmethod
+    def get_apnea_only_sleepers():
+        base_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
+        apnea_only_ids = []
+        for id in base_ids:
+            diagnoses = SubjectBuilder.subject_to_sleep_disorder(id)
+            if 'modosa' in diagnoses or 'milosa' in diagnoses or 'sevosa' in \
+                diagnoses:
+                apnea_only_ids.append(id)
+
+        return apnea_only_ids
+
+    @staticmethod
+    def get_narcolepsy_only_sleepers():
+        base_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
+        narco_only_ids = []
+        for id in base_ids:
+            diagnoses = SubjectBuilder.subject_to_sleep_disorder(id)
+            if 'narcolepsy' in diagnoses:
+                narco_only_ids.append(id)
+
+        return narco_only_ids
+
+    @staticmethod
     def get_subject_dictionary():
         subject_dictionary = {}
         all_subject_ids = SubjectBuilder.get_all_subject_ids()
@@ -31,6 +69,38 @@ class SubjectBuilder(object):
             subject_dictionary[subject_id] = SubjectBuilder.build(subject_id)
 
         return subject_dictionary
+
+    @staticmethod
+    def get_subject_dictionary_in_sleep_disorder_cohort():
+        subject_dictionary = {}
+        all_subject_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
+        for subject_id in all_subject_ids:
+            subject_dictionary[subject_id] = SubjectBuilder.build(subject_id)
+
+        return subject_dictionary
+
+    @staticmethod
+    def group_to_ids_and_dictionary(group):
+        if group == "all":
+            subject_ids = SubjectBuilder.get_all_subject_ids() + SubjectBuilder.get_full_sleep_disorder_cohort()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary() | SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
+            return subject_ids, subject_dictionary
+        if group == "control":
+            subject_ids = SubjectBuilder.get_all_subject_ids()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary()
+            return subject_ids, subject_dictionary
+        if group == "sleep_disorder":
+            subject_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
+            return subject_ids, subject_dictionary
+        if group == "apnea":
+            subject_ids = SubjectBuilder.get_apnea_only_sleepers()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
+            return subject_ids, subject_dictionary
+        if group == "narcolepsy":
+            subject_ids = SubjectBuilder.get_narcolepsy_only_sleepers()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
+            return subject_ids, subject_dictionary
 
     @staticmethod
     def build(subject_id):
@@ -69,3 +139,48 @@ class SubjectBuilder(object):
         # plt.savefig(str(Constants.FIGURE_FILE_PATH.joinpath(subject_id + '_applewatch.png')))
         # plt.close()
         return subject
+
+    @staticmethod
+    def subject_to_sleep_disorder(subject_id):
+        subject_disorder_dictionary = {
+         'd01' : [],
+         'd02' : ['narcolepsy', 'modosa'],
+         'd03': ['narcolepsy', 'modosa'],
+         'd04': ['modosa'],
+         'd05': ['narcolepsy'],
+         'd06': ['sevosa'],
+         'd07': ['sevosa'],
+         'd08': ['mildosa'],
+         'd09': ['modosa'],
+         'd10': ['mildosa'],
+         'd11': ['mildosa'],
+         'd12': ['mildosa'],
+         'd13': ['modosa'],
+         'd14': ['modosa'],
+         'd15': ['mildosa'],
+         'd16': ['mildosa'],
+         'd17': ['mildosa'],
+         'd18': ['mildosa'],
+         'd19': ['modosa'],
+         'd20': ['mildosa'],
+         'd21': ['modosa'],
+         'd22': ['mildosa'],
+         'd23': ['mildosa'],
+         'd24': ['modosa'],
+         'd25': ['modosa'],
+         'd26': [],
+         'd28': ['mildosa'],
+         'd29': ['mildosa'],
+         'd30': ['mildosa'],
+         'd31': [],
+         'd32': ['mildosa'],
+         'd33': [],
+         'd34': ['mildosa'],
+         'd35': ['mildosa'],
+         'd36': ['mildosa'],
+         'd37': ['modosa'],
+         'd38': ['sevosa'],
+         'd39': ['modosa'],
+         'd40': ['modosa']
+        }
+        return subject_disorder_dictionary[subject_id]

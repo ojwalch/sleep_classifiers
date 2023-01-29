@@ -23,6 +23,27 @@ class SleepWakeClassifierSummaryBuilder(object):
                                                                   feature_sets)
 
     @staticmethod
+    def build_mc_custom(attributed_classifier: AttributedClassifier,
+                        feature_sets: [[FeatureType]],
+                        number_of_splits: int,
+                        combined_groups=["all"]
+                        ) -> ClassifierSummary:
+
+        subject_ids = []
+        subject_dictionary = {}
+
+        for group in combined_groups:
+            subject_ids_group, subject_dictionary_group = SubjectBuilder.group_to_ids_and_dictionary(group)
+            subject_ids = subject_ids + subject_ids_group
+            subject_dictionary = subject_dictionary_group | subject_dictionary
+
+        data_splits = TrainTestSplitter.by_fraction(subject_ids, test_fraction=0.3, number_of_splits=number_of_splits)
+
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+    @staticmethod
     def build_leave_one_out(attributed_classifier: AttributedClassifier,
                             feature_sets: [[FeatureType]]) -> ClassifierSummary:
         subject_ids = SubjectBuilder.get_all_subject_ids()
@@ -31,6 +52,43 @@ class SleepWakeClassifierSummaryBuilder(object):
         data_splits = TrainTestSplitter.leave_one_out(subject_ids)
 
         return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+    @staticmethod
+    def build_loo_custom(attributed_classifier: AttributedClassifier,
+                        feature_sets: [[FeatureType]],
+                        combined_groups=["all"]
+                        ) -> ClassifierSummary:
+
+        subject_ids = []
+        subject_dictionary = {}
+
+        for group in combined_groups:
+            subject_ids_group, subject_dictionary_group = SubjectBuilder.group_to_ids_and_dictionary(group)
+            subject_ids = subject_ids + subject_ids_group
+            subject_dictionary = subject_dictionary_group | subject_dictionary
+
+        data_splits = TrainTestSplitter.leave_one_out(subject_ids)
+
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits, subject_dictionary,
+                                                                  attributed_classifier,
+                                                                  feature_sets)
+
+    @staticmethod
+    def build_custom(attributed_classifier,
+                     feature_sets: [[FeatureType]],
+                     train_set="control",
+                     test_set="apnea") -> ClassifierSummary:
+
+        subject_ids_train, subject_dictionary_train = SubjectBuilder.group_to_ids_and_dictionary(train_set)
+        subject_ids_test, subject_dictionary_test = SubjectBuilder.group_to_ids_and_dictionary(test_set)
+
+        data_splits = [DataSplit(training_set=subject_ids_train,
+                                 testing_set=subject_ids_test)]
+        overall_dictionary = subject_dictionary_train | subject_dictionary_test
+        return SleepWakeClassifierSummaryBuilder.run_feature_sets(data_splits,
+                                                                  overall_dictionary,
                                                                   attributed_classifier,
                                                                   feature_sets)
 

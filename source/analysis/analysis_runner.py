@@ -130,7 +130,8 @@ def figures_mesa_three_class():
     classifiers = utils.get_classifiers()
 
     # Uncomment to just use MLP:
-    # classifiers = [AttributedClassifier(name='Neural Net', classifier=MLPClassifier(activation='relu', hidden_layer_sizes=(15, 15, 15),
+    # classifiers = [AttributedClassifier(name='Neural Net', classifier=MLPClassifier(activation='relu',
+    # hidden_layer_sizes=(15, 15, 15),
     #                                                            max_iter=1000, alpha=0.01, solver='lbfgs'))]
 
     feature_sets = utils.get_base_feature_sets()
@@ -181,9 +182,73 @@ def figures_compare_time_based_features():
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_time_only_sw_roc')
 
 
+def figure_custom_split(train_set="control", test_set="apnea", trial_count=20):
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = SleepWakeClassifierSummaryBuilder.build_custom(attributed_classifier,
+                                                                            feature_sets,
+                                                                            train_set=train_set,
+                                                                            test_set=test_set)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_train_' + train_set + "_test_" + test_set)
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_train_' + train_set + "_test_" + test_set)
+
+
+def figure_mc_custom(combined_groups, trial_count=20):
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = SleepWakeClassifierSummaryBuilder.build_mc_custom(attributed_classifier,
+                                                                               feature_sets,
+                                                                               number_of_splits=trial_count,
+                                                                               combined_groups=combined_groups)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_MC_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_MC_' + "_".join(combined_groups))
+
+
+def figure_loo_custom(combined_groups, trial_count=20):
+    classifiers = utils.get_classifiers()
+
+    feature_sets = utils.get_base_feature_sets()
+
+    for attributed_classifier in classifiers:
+        if Constants.VERBOSE:
+            print('Running ' + attributed_classifier.name + '...')
+        classifier_summary = SleepWakeClassifierSummaryBuilder.build_loo_custom(attributed_classifier,
+                                                                                feature_sets,
+                                                                                combined_groups=combined_groups)
+
+        CurvePlotBuilder.make_roc_sw(classifier_summary)
+        CurvePlotBuilder.make_pr_sw(classifier_summary)
+        TableBuilder.print_table_sw(classifier_summary)
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_LOO_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_LOO_' + "_".join(combined_groups))
+
+
 if __name__ == "__main__":
     start_time = time.time()
     figure_leave_one_out_roc_and_pr()
+    figure_custom_split(train_set="control", test_set="apnea", trial_count=200)
+    figure_mc_custom(combined_groups=["control", "apnea"])
     #
     # figures_mc_sleep_wake()
     # figures_mc_three_class()

@@ -24,7 +24,17 @@ class PSGConverter(object):
         3: SleepStage.n3,
         4: SleepStage.n4,
         5: SleepStage.rem,
-        6: SleepStage.unscored}
+        6: SleepStage.unscored }
+
+    ints_to_labels_sleep_disorders = {
+         -1: SleepStage.unscored,
+         0: SleepStage.wake,
+         1: SleepStage.n1,
+         2: SleepStage.n2,
+         3: SleepStage.n3,
+         4: SleepStage.rem,
+         5: SleepStage.unscored,
+         6: SleepStage.unscored }
 
     @staticmethod
     def get_label_from_string(stage_string):
@@ -35,3 +45,8 @@ class PSGConverter(object):
     def get_label_from_int(stage_int):
         if stage_int in PSGConverter.ints_to_labels:
             return PSGConverter.ints_to_labels[stage_int]
+
+    @staticmethod
+    def get_label_from_int_disordered(stage_int):
+        if stage_int in PSGConverter.ints_to_labels_sleep_disorders:
+            return PSGConverter.ints_to_labels_sleep_disorders[stage_int]

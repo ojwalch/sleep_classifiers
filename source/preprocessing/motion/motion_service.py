@@ -22,6 +22,31 @@ class MotionService(object):
         return MotionCollection(subject_id=subject_id, data=motion_array)
 
     @staticmethod
+    def load_raw_sleep_disorder_cohort(subject_id):
+        subject_id = subject_id[1:]
+
+        if len(subject_id) == 1:
+            subject_id = "0" + subject_id
+
+        raw_motion_path = str(utils.get_project_root().joinpath(
+            'data/disordered_sleepers/AWS0' + subject_id +
+            ' motion_data.csv'))
+        df = pd.read_csv(raw_motion_path)
+        motion_array = df.values
+
+        time_column = motion_array[:, 0]
+        unique_times = np.unique(time_column)
+
+        for time in unique_times:
+            samples_in_window = len(motion_array[time_column == time, :])
+            step_size = 1 / samples_in_window
+            divided_second = np.linspace(time, time + 1 - step_size, samples_in_window)
+            motion_array[time_column == time, 0] = divided_second
+
+        motion_array = utils.remove_repeats(motion_array)
+        return MotionCollection(subject_id="d" + subject_id, data=motion_array)
+
+    @staticmethod
     def load(motion_file, delimiter=' '):
         motion_array = pd.read_csv(str(motion_file), delimiter=delimiter).values
         return motion_array

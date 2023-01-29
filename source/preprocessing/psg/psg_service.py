@@ -1,4 +1,6 @@
 import csv
+from datetime import datetime
+import pytz
 
 import numpy as np
 import pandas as pd
@@ -81,6 +83,38 @@ class PSGService(object):
                     data.append(StageItem(epoch=epoch, stage=PSGConverter.get_label_from_int(score)))
                 count = count + 1
         return PSGRawDataCollection(subject_id=subject_id, data=data)
+
+    @staticmethod
+    def read_precleaned_sleep_disorders(subject_id):
+        data = []
+        subject_id = subject_id[1:]
+        if len(subject_id) == 1:
+            subject_id = "0" + subject_id
+        tz = pytz.timezone('America/Detroit')
+
+        psg_path = str(utils.get_project_root().joinpath(
+            'data/disordered_sleepers/AWS0' + subject_id +
+            '_stg_data.csv'))
+        df = pd.read_csv(psg_path)
+
+        df["FullDate"] = df.Date.map(str) + " " + df.Time
+        df["DateTime"] = pd.to_datetime(df["FullDate"])
+
+        df["LocalizedDateTime"] = df.DateTime.dt.tz_localize('America/Detroit')
+
+        epoch_times = (df["LocalizedDateTime"] - tz.localize(datetime.utcfromtimestamp(-3600 * 5))).dt.total_seconds()
+        epoch_times = epoch_times.values
+        stages = df.Stg.values
+        index = 0
+        for epoch_time, stage in zip(epoch_times, stages):
+            epoch = Epoch(timestamp=epoch_time,
+                          index=index)
+            index = index + 1
+            data.append(StageItem(epoch=epoch,
+                                  stage=PSGConverter.get_label_from_int_disordered(
+                                      stage)))
+
+        return PSGRawDataCollection(subject_id="d" + subject_id, data=data)
 
     @staticmethod
     def crop(psg_raw_collection, interval):

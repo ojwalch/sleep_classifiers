@@ -22,6 +22,23 @@ class HeartRateService(object):
         return HeartRateCollection(subject_id=subject_id, data=heart_rate_array)
 
     @staticmethod
+    def load_raw_sleep_disorder_cohort(subject_id):
+        subject_id = subject_id[1:]
+
+        if len(subject_id) == 1:
+            subject_id = "0" + subject_id
+
+        raw_hr_path = str(utils.get_project_root().joinpath(
+            'data/disordered_sleepers/AWS0' + subject_id +
+            ' hr_data.csv'))
+        df = pd.read_csv(raw_hr_path)
+        heart_rate_array = df.values
+
+        heart_rate_array = utils.remove_repeats(heart_rate_array)
+        return HeartRateCollection(subject_id="d" + subject_id,
+                                   data=heart_rate_array)
+
+    @staticmethod
     def load(hr_file, delimiter=" "):
         heart_rate_array = pd.read_csv(str(hr_file), delimiter=delimiter).values
         return heart_rate_array

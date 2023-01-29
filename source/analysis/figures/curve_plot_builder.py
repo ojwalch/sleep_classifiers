@@ -164,7 +164,7 @@ class CurvePlotBuilder(object):
         plt.title(attributed_classifier.name, fontsize=18, fontname=font_name, fontweight='bold')
 
     @staticmethod
-    def combine_plots_as_grid(classifiers, number_of_trials, plot_extension):
+    def combine_plots_as_grid(classifiers, number_of_trials, plot_extension, append=""):
         combined_filenames = []
         for attributed_classifier in classifiers:
             combined_filenames.append(str(Constants.FIGURE_FILE_PATH) + '/' +
@@ -186,7 +186,8 @@ class CurvePlotBuilder(object):
             new_image.paste(im, (x_offset, y_offset))
             count = count + 1
 
-        new_image.save(str(Constants.FIGURE_FILE_PATH) + '/figure_' + str(number_of_trials) + plot_extension + '.png')
+        new_image.save(str(Constants.FIGURE_FILE_PATH) + '/figure_' + str(number_of_trials) + plot_extension + append
+                       + '.png')
 
     @staticmethod
     def combine_sw_and_three_class_plots(attributed_classifier, number_of_trials, plot_extension):

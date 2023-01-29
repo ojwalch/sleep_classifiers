@@ -182,7 +182,7 @@ def figures_compare_time_based_features():
     CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_time_only_sw_roc')
 
 
-def figure_custom_split(train_set="control", test_set="apnea", trial_count=20):
+def figure_custom_split(train_set="control", test_set="apnea"):
     classifiers = utils.get_classifiers()
 
     feature_sets = utils.get_base_feature_sets()
@@ -199,8 +199,12 @@ def figure_custom_split(train_set="control", test_set="apnea", trial_count=20):
         CurvePlotBuilder.make_pr_sw(classifier_summary)
         TableBuilder.print_table_sw(classifier_summary)
 
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_train_' + train_set + "_test_" + test_set)
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_train_' + train_set + "_test_" + test_set)
+        trial_count = len(next(iter(classifier_summary.performance_dictionary.values())))
+
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr', append='_train_' + train_set +
+                                                                                       "_test_" + test_set)
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc', append='_train_' + train_set +
+                                                                                       "_test_" + test_set)
 
 
 def figure_mc_custom(combined_groups, trial_count=20):
@@ -220,11 +224,11 @@ def figure_mc_custom(combined_groups, trial_count=20):
         CurvePlotBuilder.make_pr_sw(classifier_summary)
         TableBuilder.print_table_sw(classifier_summary)
 
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_MC_' + "_".join(combined_groups))
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_MC_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr', append='_MC_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc', append='_MC_' + "_".join(combined_groups))
 
 
-def figure_loo_custom(combined_groups, trial_count=20):
+def figure_loo_custom(combined_groups):
     classifiers = utils.get_classifiers()
 
     feature_sets = utils.get_base_feature_sets()
@@ -239,17 +243,32 @@ def figure_loo_custom(combined_groups, trial_count=20):
         CurvePlotBuilder.make_roc_sw(classifier_summary)
         CurvePlotBuilder.make_pr_sw(classifier_summary)
         TableBuilder.print_table_sw(classifier_summary)
+        trial_count = len(next(iter(classifier_summary.performance_dictionary.values())))
 
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr_LOO_' + "_".join(combined_groups))
-    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc_LOO_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_pr', append='_LOO_' + "_".join(combined_groups))
+    CurvePlotBuilder.combine_plots_as_grid(classifiers, trial_count, '_sw_roc', append='_LOO_' + "_".join(combined_groups))
 
 
 if __name__ == "__main__":
     start_time = time.time()
-    figure_leave_one_out_roc_and_pr()
-    figure_custom_split(train_set="control", test_set="apnea", trial_count=200)
-    figure_mc_custom(combined_groups=["control", "apnea"])
-    #
+
+    # All categories: 'all', 'control',  'sleep_disorder', 'apnea', 'narcolepsy', 'sevosa'
+    figure_custom_split(train_set="control", test_set="apnea")
+    figure_custom_split(train_set="control", test_set="narcolepsy")
+    figure_custom_split(train_set="control", test_set="sleep_disorder")
+    figure_custom_split(train_set="control", test_set="sevosa")
+    figure_custom_split(train_set="apnea", test_set="control")
+
+    figure_loo_custom(combined_groups=["apnea"])
+    figure_loo_custom(combined_groups=["control"])
+    figure_loo_custom(combined_groups=["apnea", "control"])
+
+    figure_mc_custom(combined_groups=["apnea"], trial_count=100)
+    figure_mc_custom(combined_groups=["control"], trial_count=100)
+    figure_mc_custom(combined_groups=["all"], trial_count=100)
+
+    # figure_leave_one_out_roc_and_pr()
+
     # figures_mc_sleep_wake()
     # figures_mc_three_class()
     #

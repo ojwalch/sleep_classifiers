@@ -26,16 +26,17 @@ class SubjectBuilder(object):
     @staticmethod
     def get_full_sleep_disorder_cohort():
         # This is excluding anyone without a 100% full night and any missing data.
+        # d32 is excluded because of an apparent time syncing issue; everyone else looks fine.
         return ["d02", "d03", "d04", "d05", "d08", "d09",
                 "d10", "d11", "d12", "d13", "d15", "d16", "d18",
                 "d19", "d21", "d23", "d24", "d25", "d28",
-                "d29", "d30", "d32", "d34", "d35", "d36", "d37",
+                "d29", "d30", "d34", "d35", "d36", "d37",
                 "d38", "d39", "d40"]
 
         # return ["d01", "d02", "d03", "d04", "d05", "d06", "d07", "d08", "d09",
         #         "d10", "d11", "d12", "d13", "d14", "d15", "d16", "d17", "d18",
         #         "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d28",
-        #         "d29", "d30", "d31", "d32", "d33", "d34", "d35", "d36", "d37",
+        #         "d29", "d30", "d31", "d33", "d34", "d35", "d36", "d37",
         #         "d38", "d39", "d40"]
 
     @staticmethod
@@ -46,6 +47,19 @@ class SubjectBuilder(object):
             diagnoses = SubjectBuilder.subject_to_sleep_disorder(id)
             if 'modosa' in diagnoses or 'milosa' in diagnoses or 'sevosa' in \
                 diagnoses:
+                apnea_only_ids.append(id)
+
+        return apnea_only_ids
+
+    @staticmethod
+    def get_severe_apnea_only_sleepers():
+        base_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
+        apnea_only_ids = []
+        for id in base_ids:
+            print(id)
+            diagnoses = SubjectBuilder.subject_to_sleep_disorder(id)
+            print(diagnoses)
+            if 'sevosa' in diagnoses:
                 apnea_only_ids.append(id)
 
         return apnea_only_ids
@@ -99,6 +113,10 @@ class SubjectBuilder(object):
             return subject_ids, subject_dictionary
         if group == "narcolepsy":
             subject_ids = SubjectBuilder.get_narcolepsy_only_sleepers()
+            subject_dictionary = SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
+            return subject_ids, subject_dictionary
+        if group == "sevosa":
+            subject_ids = SubjectBuilder.get_severe_apnea_only_sleepers()
             subject_dictionary = SubjectBuilder.get_subject_dictionary_in_sleep_disorder_cohort()
             return subject_ids, subject_dictionary
 

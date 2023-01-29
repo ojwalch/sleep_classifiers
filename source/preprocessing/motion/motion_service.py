@@ -37,11 +37,19 @@ class MotionService(object):
         time_column = motion_array[:, 0]
         unique_times = np.unique(time_column)
 
-        for time in unique_times:
-            samples_in_window = len(motion_array[time_column == time, :])
-            step_size = 1 / samples_in_window
-            divided_second = np.linspace(time, time + 1 - step_size, samples_in_window)
-            motion_array[time_column == time, 0] = divided_second
+        print("Length of unique times:" + str(len(unique_times)))
+        print("Length of time column:" + str(len(time_column)))
+
+        if len(unique_times) < len(time_column) * 0.7:
+            print("Resampling to remove integer timestamps...")
+
+            for time in unique_times:
+                samples_in_window = len(motion_array[time_column == time, :])
+                step_size = 1 / samples_in_window
+                divided_second = np.linspace(time, time + 1 - step_size, samples_in_window)
+                motion_array[time_column == time, 0] = divided_second
+        else:
+            print("Timestamps already unique; not resampling.")
 
         motion_array = utils.remove_repeats(motion_array)
         return MotionCollection(subject_id="d" + subject_id, data=motion_array)

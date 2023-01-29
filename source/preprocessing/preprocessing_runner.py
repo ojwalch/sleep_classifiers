@@ -42,14 +42,13 @@ def run_preprocessing_sleep_disorders(subject_set):
     print("Execution took " + str((end_time - start_time) / 60) + " minutes")
 
 
-# subject_ids = SubjectBuilder.get_all_subject_ids()
-# run_preprocessing(subject_ids)
-#
-# for subject_id in subject_ids:
-#     DataPlotBuilder.make_data_demo(subject_id, False)
+subject_ids = SubjectBuilder.get_all_subject_ids()
+run_preprocessing(subject_ids)
+
+for subject_id in subject_ids:
+    DataPlotBuilder.make_data_demo(subject_id, snippet=False, want_circadian=False)
 
 sleep_disorder_cohort_ids = SubjectBuilder.get_full_sleep_disorder_cohort()
-# sleep_disorder_cohort_ids = [sleep_disorder_cohort_ids[0]]
 run_preprocessing_sleep_disorders(sleep_disorder_cohort_ids)
 
 for subject_id in sleep_disorder_cohort_ids:
